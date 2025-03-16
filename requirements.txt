@@ -1,0 +1,4 @@
+Flask==3.0.0
+google-cloud-bigquery
+appengine-python-standard>=0.2.3
+Werkzeug==3.0.3
