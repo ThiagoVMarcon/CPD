@@ -2,7 +2,7 @@ import concurrent.futures
 import flask
 from flask import Flask, render_template, jsonify, request
 from google.cloud import bigquery
-
+from BlobFunctions import create_folder_forPatients
 app = Flask(__name__)
 bigquery_client = bigquery.Client()
 
@@ -19,7 +19,6 @@ def querylimits():
         LIMIT 10
         """
     )
-
     return flask.redirect(
         flask.url_for(
             "results",
@@ -28,6 +27,7 @@ def querylimits():
             location=query_job.location,
         )
     )
+    
 
 
 @app.route("/results")
@@ -76,4 +76,6 @@ def main():
     return jsonify(data)  # Retorna os resultados como JSON
 
 if __name__ == "__main__":
+    create_folder_forPatients()
     app.run(host="127.0.0.1", port=8080, debug=True)
+
