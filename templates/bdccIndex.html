@@ -1,27 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="Styles/bdccStyle.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bdccStyle.css') }}">
+    <title>Hospital Dashboard</title>
 </head>
+
 <body>
-   <section class="top">
-        <div class="default">
-            <img src="Images\Default-Profile-Picture-Download-PNG-Image.png" class="defaultImage">
+    <div class="main-container">
+        <!-- Lista de Espera -->
+        <div class="panel waiting-list">
+            <h2>Waiting List</h2>
+            <ul id="waitingList">
+                {% for patient in waiting_list %}
+                <li>
+                    Paciente ID: {{ patient.SUBJECT_ID }}
+                    <br>
+                    <small>Tempo de espera: {{ patient.WAITING }} horas</small>
+                </li>
+                {% endfor %}
+            </ul>
         </div>
-        <div class="default">
-           
+
+        <!-- Questions Panel -->
+        <div class="panel questions">
+            <h2>Questions</h2>
+            <ul id="questionsList">
+                {% for question in questions %}
+                <li>
+                    Paciente: {{ question.PATIENT }}
+                    <br>
+                    <small>{{ question.QUESTION }}</small>
+                    <br>
+                    <small class="timestamp">{{ question.TIME_MESSAGE.strftime('%d/%m/%Y %H:%M') }}</small>
+                </li>
+                {% endfor %}
+            </ul>
         </div>
-    </section>
-  <Section class="middleSection">
-    <div class="centerDiv">
-        <button class= "mainButtons">Ver Diagnosticos</button>
-        <button class= "mainButtons">Consultas</button>
-        <button class= "mainButtons">Contactar</button>
-        <button class= "mainButtons">igiufukyfu</button>
+
+        <!-- Lista de Pacientes -->
+        <div class="panel details">
+            <input type="text" id="filterInput" placeholder="Filter by ID">
+            <h2>Pacients List</h2>
+            <ul id="IDList">
+                {% for patient in patients %}
+                <li>ID: {{ patient.subject_id }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Lista de Médicos -->
+        <div class="panel details">
+            <input type="text" id="doctorFilterInput" placeholder="Filter byService">
+            <h2>Doctors List</h2>
+            <ul id="doctorList">
+                {% for doctor in doctors %}
+                <li>ID: {{ doctor.CURR_SERVICE }}</li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
-   
-  </Section>
+
+    <script>
+        // Função genérica de filtro
+        function setupFilter(inputId, listId) {
+            document.getElementById(inputId).addEventListener('keyup', function() {
+                var filter = this.value.toLowerCase();
+                var list = document.getElementById(listId);
+                var items = list.getElementsByTagName('li');
+
+                for (var i = 0; i < items.length; i++) {
+                    var text = items[i].textContent || items[i].innerText;
+                    if (text.toLowerCase().indexOf(filter) > -1) {
+                        items[i].style.display = '';
+                    } else {
+                        items[i].style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // Configurar filtros para todas as listas
+        setupFilter('filterInput', 'IDList');
+        setupFilter('doctorFilterInput', 'doctorList');
+        setupFilter('waitingFilterInput', 'waitingList');
+        setupFilter('questionsFilterInput', 'questionsList');
+    </script>
 </body>
+
 </html>
