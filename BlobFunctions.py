@@ -42,7 +42,6 @@ def bucket_folder_creation(patients_ids):
             folder_paths=[
             f"patients/{patient_id}/Images/.keep",
             f"patients/{patient_id}/Videos/.keep",
-            f"patients/{patient_id}/Messages/.keep"
             ]
             print(f"Creating folders for patient_id: {patient_id}")
             for path in folder_paths:
@@ -77,27 +76,19 @@ def add_Videos_to_patient_file(patient_id,file_name,file_content):
     blob.upload_from_string(file_content)
     print(f"Video{file_name} uploaded for patient{patient_id}.")
 
-def add_Messages_to_patient_file(patient_id,file_name,file_content):
-    bucket=storage_client.get_bucket(Bucket_Name)
-    blob=bucket.blob(f"patients/{patient_id}/Messages/{file_name}")
-    blob.upload_from_string(file_content)
-    print(f"Message{file_name} uploaded for patient{patient_id}.")
 
 
-#RETRIEVE FUNCTIONS---------------------------------------------------------
+
+
+
+#RETRIEVE FUNCTIONS-----------------------------
+# fileType="Nome da pasta"----------------------------
 #to retrieve the images and videos 
 def list_patient_files(patient_id, file_type="Images"):
     bucket=storage_client.get_bucket(Bucket_Name)
     blobs=bucket.list_blobs(prefix=f"patients/{patient_id}/{file_type}/")
     files=[blob.name.split("/")[-1] for blob in blobs if not blob.name.endswith(".keep")]
     return files
-
-#to retrieve messages
-def list_patient_messages(patient_id):
-    bucket=storage_client.get_bucket(Bucket_Name)
-    blobs=bucket.list_blobs(prefix=f"patients/{patient_id}/Messages/")
-    message_files=[blob.name.split("/")[2] for blob in blobs if not blob.name.endswith(".keep")]
-    return message_files
 
 #to delete the folder based on patient ID-------------
 def delete_patient_folder(patient_id):
@@ -111,3 +102,22 @@ def delete_patient_folder(patient_id):
         blob.delete()
         print(f"Deleted file: {blob.name}")
     print(f"Folder for patient{patient_id} deleted successfully.")
+
+
+def bucket_folder_creation_for_one_patient(patient_id):
+    bucket = storage_client.get_bucket(Bucket_Name)
+    print(f"Bucket '{Bucket_Name}' retrieved successfully.")
+    if not check_Folder(bucket, patient_id): 
+        folder_paths = [
+            f"patients/{patient_id}/Images/.keep",
+            f"patients/{patient_id}/Videos/.keep",
+        ]
+        print(f"Creating folders for patient_id: {patient_id}")
+        
+      
+        for path in folder_paths:
+            blob = bucket.blob(path)
+            blob.upload_from_string("")
+            print(f"Created folder: {path}")
+    else:
+        print(f"Folder for patient_id: {patient_id} already exists.")
