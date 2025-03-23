@@ -69,7 +69,7 @@ body {
     font-style: italic;
 }
 
-#filterInput {
+#filterInput, #serviceFilterInput {
     width: 100%;
     padding: 8px;
     margin-bottom: 15px;
@@ -79,17 +79,7 @@ body {
     box-sizing: border-box;
 }
 
-#doctorFilterInput {
-    width: 70%;
-    padding: 8px;
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    box-sizing: border-box;
-}
-
-#filterInput:focus, #doctorFilterInput:focus {
+#filterInput:focus, #serviceFilterInput:focus {
     outline: none;
     border-color: #4CAF50;
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);

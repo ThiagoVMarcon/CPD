@@ -10,40 +10,43 @@
 
 <body>
     <div class="main-container">
-        <!-- Lista de Espera -->
         <div class="panel waiting-list">
             <h2>Waiting List</h2>
             <ul id="waitingList">
                 {% for patient in waiting_list %}
                 <li>
-                    Paciente ID: {{ patient.SUBJECT_ID }}
+                    Patient ID: {{ patient.SUBJECT_ID }}
                     <br>
-                    <small>Tempo de espera: {{ patient.WAITING }} horas</small>
+                    <small>Waiting time: {{ patient.WAITING }} hours</small>
                 </li>
                 {% endfor %}
             </ul>
         </div>
 
-        <!-- Questions Panel -->
         <div class="panel questions">
             <h2>Questions</h2>
             <ul id="questionsList">
                 {% for question in questions %}
                 <li>
-                    Paciente: {{ question.PATIENT }}
+                    Patient: {{ question.patient_id }}
                     <br>
-                    <small>{{ question.QUESTION }}</small>
+                    <small>Question: {{ question.question }}</small>
                     <br>
-                    <small class="timestamp">{{ question.TIME_MESSAGE.strftime('%d/%m/%Y %H:%M') }}</small>
+                    <small class="timestamp">{{ question.question_time }}</small>
+                    {% if question.answer %}
+                    <br>
+                    <small class="answer">Answer: {{ question.answer }}</small>
+                    <br>
+                    <small class="timestamp">{{ question.answer_time }}</small>
+                    {% endif %}
                 </li>
                 {% endfor %}
             </ul>
         </div>
 
-        <!-- Lista de Pacientes -->
         <div class="panel details">
             <input type="text" id="filterInput" placeholder="Filter by ID">
-            <h2>Pacients List</h2>
+            <h2>Patients List</h2>
             <ul id="IDList">
                 {% for patient in patients %}
                 <li>ID: {{ patient.subject_id }}</li>
@@ -51,20 +54,18 @@
             </ul>
         </div>
 
-        <!-- Lista de Médicos -->
         <div class="panel details">
-            <input type="text" id="doctorFilterInput" placeholder="Filter byService">
-            <h2>Doctors List</h2>
-            <ul id="doctorList">
-                {% for doctor in doctors %}
-                <li>ID: {{ doctor.CURR_SERVICE }}</li>
+            <input type="text" id="serviceFilterInput" placeholder="Filter by Service">
+            <h2>Services List</h2>
+            <ul id="serviceList">
+                {% for service in services %}
+                <li>ID: {{ service.service }}</li>
                 {% endfor %}
             </ul>
         </div>
     </div>
 
     <script>
-        // Função genérica de filtro
         function setupFilter(inputId, listId) {
             document.getElementById(inputId).addEventListener('keyup', function() {
                 var filter = this.value.toLowerCase();
@@ -82,9 +83,8 @@
             });
         }
 
-        // Configurar filtros para todas as listas
         setupFilter('filterInput', 'IDList');
-        setupFilter('doctorFilterInput', 'doctorList');
+        setupFilter('serviceFilterInput', 'serviceList');
         setupFilter('waitingFilterInput', 'waitingList');
         setupFilter('questionsFilterInput', 'questionsList');
     </script>
