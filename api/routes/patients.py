@@ -1,4 +1,3 @@
-
 from flask import Blueprint, request, jsonify
 from google.cloud import bigquery
 from datetime import datetime
@@ -168,6 +167,18 @@ def update_waiting_times(Request):
 
 def delete_patient_from_database(patient_id):
     try:
+        # Primeiro, verifica se o paciente existe
+        check_query = f"""
+        SELECT COUNT(*) as count
+        FROM `dream-team-bdcc.Hospital.Patient`
+        WHERE SUBJECT_ID = {patient_id}
+        """
+        
+        query_job = bigquery_client.query(check_query)
+        result = next(query_job.result())
+        
+        if result.count == 0:
+            return False, "Patient not found"
 
         update_queries = [
             f"""
@@ -204,21 +215,22 @@ def delete_patient_from_database(patient_id):
         query_job = bigquery_client.query(delete_query)
         query_job.result()
         
-        return True
+        return True, "Patient deleted successfully"
         
     except Exception as e:
         print(f"Error deleting patient: {str(e)}")
-        return False
+        return False, str(e)
 
 @patients_bp.route('/rest/patients/<patient_id>', methods=['DELETE'])
 def delete_patient_endpoint(patient_id):
     try:
-
         patient_id = int(patient_id)
         
-        db_success = delete_patient_from_database(patient_id)
+        db_success, message = delete_patient_from_database(patient_id)
         if not db_success:
-            return jsonify({"error": "Failed to delete patient from database"}), 500
+            if message == "Patient not found":
+                return jsonify({"error": "Patient not found"}), 404
+            return jsonify({"error": f"Failed to delete patient from database: {message}"}), 500
             
         bucket_success = delete_patient_folder(patient_id)
         if not bucket_success:
@@ -284,8 +296,6 @@ def update_patient(patient_id):
         return jsonify({"error": "Invalid patient ID format"}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-
 
 
 

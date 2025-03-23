@@ -1,0 +1,301 @@
+config:
+  target: "https://dream-team-bdcc.lm.r.appspot.com/rest"
+  phases:
+    - duration: 60
+      arrivalRate: 5
+  defaults:
+    headers:
+      Content-Type: "application/json"
+
+scenarios:
+  # ===================================
+  # ========== PATIENTS ===============
+  # ===================================
+  - name: "Create new patient - default service"
+    flow:
+      - post:
+          url: "/user"
+          json:
+            date_of_birth: "1990-01-01"
+            gender: "M"
+          expect:
+            - statusCode: 201
+
+  - name: "Create new patient - specifying service"
+    flow:
+      - post:
+          url: "/user"
+          json:
+            date_of_birth: "1990-01-01"
+            gender: "F"
+            curr_service: "MED"
+          expect:
+            - statusCode: 201
+
+  - name: "List all patient IDs"
+    flow:
+      - get:
+          url: "/patient-ids"
+          expect:
+            - statusCode: 200
+
+  - name: "Get waiting list"
+    flow:
+      - get:
+          url: "/waiting-list"
+          expect:
+            - statusCode: 200
+
+  - name: "List all medical services"
+    flow:
+      - get:
+          url: "/services"
+          expect:
+            - statusCode: 200
+
+  - name: "Get progress of a specific patient"
+    flow:
+      - get:
+          url: "/patients/8409/progress"
+          expect:
+            - statusCode: 200
+
+  - name: "Update Patient Information"
+    flow:
+      - put:
+          url: "/patients/8409"  
+          headers:
+            Content-Type: "application/json"
+          json:
+            gender: "F"
+            date_of_birth: "1995-05-15"
+            death_time: "2024-03-25T14:30:00"
+            hospital_death_time: "2024-03-25T14:30:00"
+            ssn_death_time: "2024-03-25T14:35:00"
+            expired: 1
+            curr_service: "SURG"
+          expect:
+            - statusCode: 200  
+            - body: /Patient updated successfully/
+
+  - name: "Delete Patient"
+    flow:
+      - delete:
+          url: "/patients/8409"
+          expect:
+            - statusCode: 200   
+          capture:
+            - json: "$.message"
+              as: "Patient deleted successfully"
+
+ 
+
+  # ===================================
+  # ========== ADMISSIONS =============
+  # ===================================
+  - name: "Create new admission - basic"
+    flow:
+      - post:
+          url: "/admission"
+          json:
+            patient_id: "19241"
+            admit_time: "2024-03-22T10:00:00"
+          expect:
+            - statusCode: 201
+
+  - name: "Create new admission - complete"
+    flow:
+      - post:
+          url: "/admission"
+          json:
+            patient_id: "19241"
+            admit_time: "2024-03-22T10:00:00"
+            admission_type: "EMERGENCY"
+            admission_location: "EMERGENCY ROOM"
+            insurance: "PUBLIC"
+            language: "PORTUGUESE"
+            diagnosis: "Acute pain"
+          expect:
+            - statusCode: 201
+
+  - name: "Update admission - partial"
+    flow:
+      - put:
+          url: "/admission/19241/12345"
+          json:
+            discharge_time: "2024-03-23T15:00:00"
+            discharge_location: "HOME"
+            diagnosis: "Recovered"
+          expect:
+            - statusCode: 200
+
+  - name: "Update admission - complete"
+    flow:
+      - put:
+          url: "/admission/19241/12345"
+          json:
+            admit_time: "2024-03-22T10:00:00"
+            discharge_time: "2024-03-23T15:00:00"
+            death_time: null
+            admission_type: "EMERGENCY"
+            admission_location: "EMERGENCY ROOM"
+            discharge_location: "HOME"
+            insurance: "PUBLIC"
+            language: "PORTUGUESE"
+            religion: "CATHOLIC"
+            marital_status: "SINGLE"
+            ethnicity: "WHITE"
+            diagnosis: "Recovered"
+            expired: 0
+            has_events: 1
+          expect:
+            - statusCode: 200
+
+  # ===================================
+  # ========== QUESTIONS ==============
+  # ===================================
+  - name: "Create new question"
+    flow:
+      - post:
+          url: "/patients/83/question"
+          json:
+            curr_service: "CMED"
+            message: "Quando posso voltar a fazer exercícios?"
+          expect:
+            - statusCode: 201
+
+  - name: "Create answer for existing question"
+    flow:
+      - post:
+          url: "/patients/83/answer"
+          json:
+            curr_service: "CMED"
+            answer: "Em 6 semanas você poderá voltar gradualmente aos exercícios"
+          expect:
+            - statusCode: 201
+
+  - name: "List questions of a specific patient"
+    flow:
+      - get:
+          url: "/patients/83/questions"
+          expect:
+            - statusCode: 200
+
+  - name: "List all system questions"
+    flow:
+      - get:
+          url: "/questions"
+          expect:
+            - statusCode: 200
+  # ===================================
+  # ========== MEDIA ==============
+  # ===================================
+  - name: "Get patient files"
+    flow:
+      - get:
+          url: "/patients/100235/files"
+          expect:
+            - statusCode: 200
+
+  - name: "Upload images in patient folder bucket"
+    flow:
+      - post:
+          url: "/patients/100235/image"
+          expect:
+            - statusCode: 201
+          formData:
+            file: 'test_files/107416612-portugals-forward-07-cristiano-ronaldo-l-celebrates-after-winning-the-uefa-euro-2024-gro.avif'
+
+  - name: "Upload video in patient bucket"
+    flow:
+      - post:
+          url: "/patients/100235/video"
+          expect:
+            - statusCode: 201
+          formData:
+            file: 'test_files/video_test.mp4'
+
+
+  - name: "Download of a specific image"
+    flow:
+      - get:
+          url: "/patients/100235/download/Images/107416612-portugals-forward-07-cristiano-ronaldo-l-celebrates-after-winning-the-uefa-euro-2024-gro.avif"
+          expect:
+            - statusCode: 200
+
+  - name: "Download of a specific video"
+    flow:
+      - get:
+          url: "/patients/100235/download/Videos/video_test.mp4"
+          expect:
+            - statusCode: 200
+
+  - name: "Download of all arquive files of a patient (ZIP)"
+    flow:
+      - get:
+          url: "/patients/100235/download/all"
+          expect:
+            - statusCode: 200
+
+  # ===================================
+  # ========== ERROR TESTS ============
+  # ===================================
+  - name: "Create patient without required fields"
+    flow:
+      - post:
+          url: "/user"
+          json:
+            gender: "M"
+          expect:
+            - statusCode: 400
+
+  - name: "Create question without curr_service (should fail)"
+    flow:
+      - post:
+          url: "/patients/100167/question"
+          json:
+            message: "Teste sem médico"
+          expect:
+            - statusCode: 400
+
+  - name: "Create answer without answer field (should fail)"
+    flow:
+      - post:
+          url: "/patients/100167/answer"
+          json:
+            curr_service: "CMED"
+          expect:
+            - statusCode: 400
+
+  - name: "Try to access questions of non-existent patient"
+    flow:
+      - get:
+          url: "/patients/99999999/questions"
+          expect:
+            - statusCode: 400
+
+  - name: "Try upload without a image"
+    flow:
+      - post:
+          url: "/patients/100166/image"
+          expect:
+            - statusCode: 400
+
+  - name: "Try download a file doesn't exist"
+    flow:
+      - get:
+          url: "/patients/100235/download/Images/nao_existe.jpg"
+          expect:
+            - statusCode: 404   
+
+  - name: "Update Patient with Missing Fields"
+    flow:
+      - put:
+          url: "/patients/9999999999999999"
+          headers:
+            Content-Type: "application/json"
+          json:
+            gender: "F"
+          expect:
+            - statusCode: 400  
+            - body: /Invalid data/  
