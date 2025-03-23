@@ -1,5 +1,7 @@
 # Configurações do Google Cloud Storage (não usado no momento)
-# BUCKET_NAME = "dream-team-bdcc.appspot.com"
+BUCKET_NAME = "dream-team-bdcc.appspot.com"
+# o nome original do bucket é "dreamteambdcc-bucket" mas podes usar o de cima se der mais jeito I guess
+
 
 # Configurações do BigQuery
 BIGQUERY_TABLES = {

@@ -139,3 +139,32 @@ def get_waiting_list():
         
     except Exception as e:
         return jsonify({"error": str(e)}), 500 
+    
+
+
+
+
+#google cloud function to update the waiting list 
+
+def update_waiting_times(Request):
+    try:
+        query="""
+        SELECT SUBJECT_ID, DATE_DIFF(ADMITTIME, DISCHTIME, HOUR) AS WAITING
+        FROM `dream-team-bdcc.Hospital.Admissions` 
+        ORDER BY WAITING DESC
+        LIMIT 50
+        """
+
+        query_job=bigquery_client.query(query)
+        results=query_job.result()
+        waiting_times=[]
+        for row in results:
+            waiting_times.append({
+                "SUBJECT_ID": str(row.SUBJECT_ID),
+                "WAITING": row.WAITING
+            })
+            
+        return "Waiting_List updated."
+    except Exception as e:
+        return f"Error: {str(e)}"
+        

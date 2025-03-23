@@ -1,4 +1,5 @@
 from flask import Flask, render_template, jsonify
+from api.services.blob_storage import create_folder_forPatients
 from api.routes import (
     patients_bp,
     admissions_bp,
@@ -39,5 +40,6 @@ def home():
         return f"Error: {str(e)}", 500
 
 if __name__ == "__main__":
+    create_folder_forPatients()
     app.run(host="127.0.0.1", port=8080, debug=True)
 
