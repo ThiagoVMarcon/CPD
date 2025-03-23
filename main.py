@@ -1,37 +1,40 @@
 from flask import Flask, render_template, jsonify
-from api.services.blob_storage import create_folder_forPatients
+# from api.services.blob_storage import create_folder_forPatients
+from api.routes.patients import update_waiting_times
 from api.routes import (
     patients_bp,
     admissions_bp,
     questions_bp,
-    # media_bp  # Não usado no momento
+    progress_bp,
+    media_bp
 )
 from api.services.queries import (
     get_patient_ids,
     get_services,
     get_waiting_list,
-    get_questions
+    get_questions,
+    get_lab_test_progress,
+    get_inputs_progress
 )
 
 app = Flask(__name__)
 
-# Registrar os blueprints
 app.register_blueprint(patients_bp)
 app.register_blueprint(admissions_bp)
 app.register_blueprint(questions_bp)
-# app.register_blueprint(media_bp)  # Não usado no momento
+app.register_blueprint(progress_bp)
+app.register_blueprint(media_bp)
 
 @app.route("/")
 def home():
     try:
-        # Obter dados
         patients = [{"subject_id": pid} for pid in get_patient_ids()]
         services = [{"service": s} for s in get_services()]
         
         return render_template(
             "bdccIndex.html", 
-            patients=patients,  # Mudado de patient_ids para patients
-            services=services,  # Adicionado o formato correto
+            patients=patients,  
+            services=services,  
             waiting_list=get_waiting_list(),
             questions=get_questions()
         )
@@ -40,6 +43,5 @@ def home():
         return f"Error: {str(e)}", 500
 
 if __name__ == "__main__":
-    create_folder_forPatients()
     app.run(host="127.0.0.1", port=8080, debug=True)
 

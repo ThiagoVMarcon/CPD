@@ -1,0 +1,1 @@
+gcloud functions deploy update_waiting_times --source=. --runtime=python39 --trigger-http --region=europe-west4 --allow-unauthenticated --set-env-vars GOOGLE_ENTRYPOINT="python3 main.py"
